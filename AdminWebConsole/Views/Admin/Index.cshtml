@@ -1,0 +1,558 @@
+﻿<script type="text/javascript">
+
+    var $Protk = $Protk || {
+        Config: {}
+    };
+
+    $Protk.Config = $Protk.Config || {
+        Ajax: {}
+    };
+
+    $Protk.Config.Ajax = {
+
+        baseURL: "/Habitat.Server.AdminWebConsole/Admin/",
+
+        onload: function () {
+            $(document).ajaxSend($.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    opacity: .5,
+                    color: '#fff'
+                }
+            })).ajaxStop($.unblockUI).ajaxError($.unblockUI);
+        },
+
+        getComponentConfig: function (componentName, successFn, errorFn) {
+
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "GetComponent/" + componentName,
+                contentType: "application/json",
+                dataType: "json",
+                cache: false
+            }).success(successFn).error(errorFn);
+        },
+
+        copyComponentConfig: function (existingComponentName, newComponentName, successFn, errorFn) {
+
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "CopyComponent/" + existingComponentName + "/" + newComponentName + "/",
+                contentType: "application/json",
+                dataType: "json",
+                cache: false
+            }).success(successFn).error(errorFn);
+        },
+
+        swapComponentConfig: function (firstComponentName, secondComponentName, successFn, errorFn) {
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "SwapComponent/" + firstComponentName + "/" + secondComponentName + "/",
+                contentType: "application/json",
+                dataType: "json",
+                cache: false
+            }).success(successFn).error(errorFn);
+        },
+
+        getComponentList: function (successFn, errorFn) {
+
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "GetComponentList",
+                contentType: "application/json",
+                dataType: "json",
+                cache: false
+            }).success(successFn).error(errorFn);
+
+        },
+
+        saveComponentConfig: function (componentName, configData, successFn, errorFn) {
+            
+            var configDataString = JSON.stringify(configData);
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "SaveComponent/" + componentName,
+                contentType: "application/json",
+                data: configDataString,
+                dataType: "json"
+            }).success(successFn).error(errorFn);
+        },
+
+        createComponentConfig: function (componentName, successFn, errorFn) {
+            
+            var configDataString = JSON.stringify({ ComponentName: componentName });
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "AddNewComponent",
+                contentType: "application/json",
+                data: configDataString,
+                dataType: "json"
+            }).success(successFn).error(errorFn);
+        },
+
+        removeComponentConfig: function (componentName, successFn, errorFn) {
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "RemoveComponent/" + componentName,
+                contentType: "application/json",
+                dataType: "json"
+            }).success(successFn).error(errorFn);
+        },
+
+        importComponentConfig: function (configListJson, successFn, errorFn) {
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "ImportConfig/",
+                contentType: "application/json",
+                data: configListJson,                
+                dataType: "json"
+            }).success(successFn).error(errorFn);
+        },
+
+        exportComponentConfig: function (successFn, errorFn) {
+            $.ajax({
+                type: "POST",
+                url: this.baseURL + "ExportConfig/",
+                contentType: "application/json",
+                dataType: "json"
+            }).success(successFn).error(errorFn);
+        }
+    };
+
+    // This is here because IE does not natively support indexOf 
+    if (!Array.prototype.indexOf) {
+
+        Array.prototype.indexOf = function(obj, start) {
+            for (var i = (start || 0), j = this.length; i < j; i++) {
+                if (this[i] === obj) {
+                    return i;
+                }
+            }
+            return -1;
+        };
+    }
+    
+    var configUserInterface;
+    $(document).ready(function () {
+
+        $Protk.Config.Ajax.onload();
+        $Protk.Config.Ajax.getComponentList(DisplayComponentList, AdminConsoleErrorHandler);
+
+        configUserInterface = new ConfigUserInterface($("#DataView"));
+
+        $("#CreateNewApplicationButton").click(CreateNewComponentConfig).button();
+        $("#ImportExportDialogButton").click(function() {
+            $("#ImportExportDialog").dialog('open');
+            $("#ImportExportData").val("");
+        }).button();
+        $("#ExportButton").click(ExportConfig).button();
+        $("#ImportButton").click(ImportConfig).button();
+        $("#SaveConfigButton").click(SaveComponentConfig).button();
+        $("#ResetConfigButton").click(ResetComponentConfig).button();
+        $("#ExportSingleComponentConfigButton").click(ExportComponentConfig).button();
+        $("#ExportSingleComponentConfigDialog").dialog({ autoOpen: false, minHeight: 400, minWidth: 800 });
+        $("#ImportExportDialog").dialog({ autoOpen: false, minHeight: 400, minWidth: 800 });
+        $("#ResponseDialog").dialog({ autoOpen: false, minHeight: 300, minWidth: 800 });
+    });
+
+    function MakeButtons() {
+        $.each($(".functionButton"), function (k,v) {
+            $(".functionButton:eq(" + k + ")").button();
+        });
+    }
+    
+    function DisplayComponentList(serverResponse) {
+
+        if (serverResponse.ExceptionMessage != null) {
+            HandleError(serverResponse.ExceptionMessage);
+            return;
+        }
+
+        $("#ComponentList").empty();
+        if (serverResponse.Data && serverResponse.Data.length == 0) {
+            $("#ComponentList").append($("<span id=\"NoComponentsText\">No Components Defined</span>"));
+        }
+
+        $.each(serverResponse.Data, function (index, componentName) {
+
+            var div = $("<div class='componentLink'></div>");
+            var deleteButton = $("<span tabIndex=-1 title='Remove' style='float:left' class='functionButton ui-icon ui-icon-close'></span>").click(function () {
+                RemoveComponentConfig(componentName);
+            }).button();
+            var copyButton = $("<span tabIndex=-1 title='Copy' style='float:left' class='functionButton ui-icon ui-icon-copy'></span>").click(function () {
+                CopyComponentConfig(componentName);
+            }).button();
+            var swapButton = $("<span tabIndex=-1 title='Swap' style='float:left' class='functionButton ui-icon ui-icon-shuffle'></span>").click(function () {
+                SwapComponentConfig(componentName);
+            }).button();
+            var link = $("<a tabIndex='-1' class='componentLink' href='javascript:;'>" + componentName + "</a>").click(function () {
+                LoadComponentConfig(componentName);
+            });
+
+            div.append(deleteButton);
+            div.append(copyButton);
+            div.append(swapButton);
+            div.append(link);
+            $("#ComponentList").append(div);
+        });
+    }
+
+    function ExportConfig() {
+        $Protk.Config.Ajax.exportComponentConfig(function (serverResponse) {
+            if (serverResponse.ExceptionMessage != null) {
+                HandleError(serverResponse.ExceptionMessage);
+            }
+            var configExport = serverResponse.Data;
+            var configDataString = JSON.stringify(configExport, null, '\t');
+            $("#ImportExportData").val(configDataString);
+        }, AdminConsoleErrorHandler);
+    }
+
+    function ImportConfig() {
+        var dataToImport = $("#ImportExportData").val();
+        $("#ResponseDialog").empty();
+        $Protk.Config.Ajax.importComponentConfig(dataToImport, function (serverResponse) {
+            if (serverResponse.ExceptionMessage != null) {
+                HandleError(serverResponse.ExceptionMessage);
+            }
+
+            $.each(serverResponse.Data.ImportSuccesses, function (index, message) {
+                $("#ResponseDialog").append($("<div class='importSuccess'>" + message + "</div>"));
+            });
+            $.each(serverResponse.Data.ImportWarnings, function (index, message) {
+                $("#ResponseDialog").append($("<div class='importWarning'>" + message + "</div>"));
+            });
+            $("#ResponseDialog").dialog('open');
+            $Protk.Config.Ajax.getComponentList(DisplayComponentList, AdminConsoleErrorHandler);
+        }, AdminConsoleErrorHandler);
+    }
+
+    function ResetComponentConfig() {
+        var componentName = configUserInterface.ComponentName;
+        LoadComponentConfig(componentName);
+    }
+
+    function RemoveComponentConfig(componentName) {
+        if (confirm("Are you sure you want to remove configuration for '" + componentName + "'?")) {
+            $("#ComponentName").text("");
+            configUserInterface.initialize("");
+            $Protk.Config.Ajax.removeComponentConfig(componentName, function (serverResponse) {
+                if (serverResponse.ExceptionMessage != null) {
+                    HandleError(serverResponse.ExceptionMessage);
+                }
+                $Protk.Config.Ajax.getComponentList(DisplayComponentList, AdminConsoleErrorHandler);
+            }, AdminConsoleErrorHandler); 
+        }
+    }
+
+    function CopyComponentConfig(existingComponentName) {
+
+        var newComponentName = prompt("Enter name for the copy of '" + existingComponentName + "':");
+        if (newComponentName != null) {
+            $Protk.Config.Ajax.copyComponentConfig(existingComponentName, newComponentName, function (serverResponse) {
+                if (serverResponse.ExceptionMessage != null) {
+                    HandleError(serverResponse.ExceptionMessage);
+                }
+                $Protk.Config.Ajax.getComponentList(DisplayComponentList, AdminConsoleErrorHandler);
+                LoadComponentConfig(newComponentName);
+            }, AdminConsoleErrorHandler);
+        }
+    }
+
+    function SwapComponentConfig(firstComponentName) {
+
+        var secondComponentName = prompt("Enter a component name to swap with '" + firstComponentName + "':");
+        if (secondComponentName != null) {
+            $Protk.Config.Ajax.swapComponentConfig(firstComponentName, secondComponentName, function (serverResponse) {
+                if (serverResponse.ExceptionMessage != null) {
+                    HandleError(serverResponse.ExceptionMessage);
+                }
+                $Protk.Config.Ajax.getComponentList(DisplayComponentList, AdminConsoleErrorHandler);
+                LoadComponentConfig(firstComponentName);
+            }, AdminConsoleErrorHandler);
+        }
+    }
+
+    function LoadComponentConfig(componentName) {
+
+        $Protk.Config.Ajax.getComponentConfig(componentName, function (serverResponse) {
+            if (serverResponse.ExceptionMessage != null) {
+                HandleError(serverResponse.ExceptionMessage);
+                return;
+            }
+
+            $("#ComponentName").text(componentName);
+
+            var configRoot = serverResponse.Data;
+            configUserInterface = new ConfigUserInterface($("#DataView"));
+            configUserInterface.initialize(componentName);
+            configUserInterface.setConfigData(configRoot);
+
+        }, AdminConsoleErrorHandler);  
+    }
+
+    function SaveComponentConfig() {
+
+        $Protk.Config.Ajax.saveComponentConfig(configUserInterface.ComponentName, configUserInterface.getConfigData(), function (serverResponse) {
+            if (serverResponse.ExceptionMessage != null) {
+                HandleError(serverResponse.ExceptionMessage);
+                return;
+            }
+            alert("Save successful.");
+        }, AdminConsoleErrorHandler);
+    }
+
+    function ExportComponentConfig() {
+        $Protk.Config.Ajax.getComponentConfig(configUserInterface.ComponentName, function (serverResponse) {
+            if (serverResponse.ExceptionMessage != null) {
+                HandleError(serverResponse.ExceptionMessage);
+                return;
+            }
+
+            var configData = serverResponse.Data;
+            var configDataString = "[" + JSON.stringify(configData, null, '\t') + "]";
+            $("#ExportSingleComponentConfigData").val(configDataString);
+
+            $("#ExportSingleComponentConfigDialog").dialog('open');
+        }, AdminConsoleErrorHandler);
+    }
+
+    function AdminConsoleErrorHandler(jqXhr, textStatus, errorThrown) {
+        HandleError(errorThrown);
+    }
+
+    function HandleError(errorMessage) {
+        $("#ResponseDialog").empty();
+        $("#ResponseDialog").append($("<span class='errorMessage'>" + errorMessage + "</span>"));
+        $("#ResponseDialog").dialog('open');
+    }
+
+    var CreateNewComponentConfig = function () {
+        var componentName = prompt("Enter name for new Component:");
+        if (componentName != null) {
+            $Protk.Config.Ajax.createComponentConfig(componentName, function (serverResponse) {
+                if (serverResponse.ExceptionMessage != null) {
+                    HandleError(serverResponse.ExceptionMessage);
+                }
+                $Protk.Config.Ajax.getComponentList(DisplayComponentList, AdminConsoleErrorHandler);
+            }, AdminConsoleErrorHandler);  
+        }
+    };
+
+    function createInputFields(context) {
+
+        var containerDiv = $("<div class='configRow'></div>");
+
+        containerDiv.append($("<span tabIndex='-1' title='Remove' style='float:left' class='functionButton ui-icon ui-icon-close'></span>").click(function () {
+            context.remove();
+        }).button());
+        containerDiv.append($("<span tabIndex='-1' title='Add Below' style='float:left' class='functionButton ui-icon ui-icon-arrowthick-1-s'></span>").click(function () {
+            context.addSiblingAfterThisNode();
+        }).button());
+        containerDiv.append($("<span tabIndex='-1' title='Add Above' style='float:left' class='functionButton ui-icon ui-icon-arrowthick-1-n'></span>").click(function () {
+            context.addSiblingBeforeThisNode();
+        }).button());
+        containerDiv.append($("<span tabIndex='-1' title='Add Child' style='float:left' class='functionButton ui-icon ui-icon-arrowreturnthick-1-e'></span>").click(function () {
+            context.addChild();
+        }).button());
+        
+        for (var i = 0; i < context.Level; i++) {
+            containerDiv.append("<span class='indent'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>");
+        }
+        containerDiv.append("<input class='jsonNameField' type='text' />");
+        containerDiv.append("<textarea class='jsonValueField' cols='50' rows='0'></textarea>");
+        
+        return containerDiv;
+    };
+
+    function ConfigRoot(componentName, data) {
+        this.ComponentName = componentName;
+        this.Data = data;
+    }
+    
+    function ConfigNode(nodeName, nodeValue, children) {
+        this.Name = nodeName;
+        this.Value = nodeValue;
+        this.Children = children;
+    }
+
+    function ConfigUserInterface(domRootElement) {
+
+        this.InterfaceChildren = new Array();
+        this.Level = 0;
+        this.DomRootElement = domRootElement;
+
+        this.initialize = function (componentName) {
+
+            this.DomRootElement.empty();
+            this.ComponentName = componentName;
+        };
+
+        this.getConfigData = function () {
+
+            var childConfigNodes = (this.InterfaceChildren.length > 0 ? new Array() : null);
+            $.each(this.InterfaceChildren, function (index, child) {
+                childConfigNodes.push(child.getConfigData());
+            });
+
+            return new ConfigRoot(this.ComponentName, new ConfigNode(this.ComponentName, null, childConfigNodes));
+        };
+
+        this.setConfigData = function (configRoot) {
+
+            var configData = (configRoot != null ? configRoot.Data : null);
+            var childConfigNodes = (configData != null && configData.Children != null && configData.Children.length > 0 ? configData.Children : new Array());
+
+            if (childConfigNodes.length == 0) {
+                childConfigNodes.push(new ConfigNode("", "", null));
+            }
+
+            var rootElement = this.DomRootElement;
+            rootElement.empty();
+            var currentNode = this;
+            var interfaceChildren = new Array();
+
+            $.each(childConfigNodes, function (index, child) {
+                var newNode = new ConfigUserInterfaceNode(currentNode);
+                rootElement.append(newNode.DomRootElement);
+                interfaceChildren.push(newNode);
+                newNode.setConfigData(child);
+            });
+
+            $(".jsonValueField").each(function () {
+                $(this).autoGrow();
+            });
+
+            $(".jsonNameField").each(function () {
+                $(this).autoFit();
+            });
+
+            this.InterfaceChildren = interfaceChildren;
+        };
+    }
+
+    function ConfigUserInterfaceNode(parent) {
+
+        if (!parent)
+            return;
+        
+        this.Parent = parent;
+        this.Level = this.Parent.Level + 1;
+        this.InterfaceChildren = new Array();
+        this.DomRootElement = createInputFields(this);
+
+        this.addSiblingBeforeThisNode = function () {
+            
+            var newNode = new ConfigUserInterfaceNode(this.Parent);
+            this.DomRootElement.before(newNode.DomRootElement);
+            newNode.DomRootElement.find(".jsonValueField").autoGrow();
+            var indexOfThisNode = this.Parent.InterfaceChildren.indexOf(this);
+            this.Parent.InterfaceChildren.splice(indexOfThisNode, 0, newNode);
+            return newNode;
+        };
+
+        this.addSiblingAfterThisNode = function () {
+            
+            var newNode = new ConfigUserInterfaceNode(this.Parent);
+            this.DomRootElement.after(newNode.DomRootElement);
+            newNode.DomRootElement.find(".jsonValueField").autoGrow();
+            var indexOfThisNode = this.Parent.InterfaceChildren.indexOf(this);
+            this.Parent.InterfaceChildren.splice(indexOfThisNode + 1, 0, newNode);
+            return newNode;
+        };
+
+        this.addChild = function () {
+
+            var configValueNode = this.DomRootElement.find(".jsonValueField:first");
+            configValueNode.hide();
+            configValueNode.val(null);
+
+            var newNode = new ConfigUserInterfaceNode(this);
+            this.DomRootElement.append(newNode.DomRootElement);
+            newNode.DomRootElement.find(".jsonValueField").autoGrow();
+            this.InterfaceChildren.push(newNode);
+            return newNode;
+        };
+
+        this.remove = function () {
+            
+            this.DomRootElement.empty();
+            var indexOfThisNode = this.Parent.InterfaceChildren.indexOf(this);
+            this.Parent.InterfaceChildren.splice(indexOfThisNode, 1);
+
+            if (this.Parent.InterfaceChildren.length == 0) {
+                var configValueNode = this.Parent.DomRootElement.find(".jsonValueField:first");
+                configValueNode.show();
+                configValueNode.val("");
+            }
+        };
+
+        this.getConfigData = function () {
+
+            var configNameNode = this.DomRootElement.find(".jsonNameField");
+            var configValueNode = this.DomRootElement.find(".jsonValueField");
+            var configName = configNameNode.val() != "" ? configNameNode.val() : null;
+            var configValue = configValueNode.val() != "" ? configValueNode.val() : null;
+            
+            var childConfigNodes = (this.InterfaceChildren.length > 0 ? new Array() : null);
+            $.each(this.InterfaceChildren, function (index, child) {
+                childConfigNodes.push(child.getConfigData());
+            });
+
+            return new ConfigNode(configName, configValue, childConfigNodes);
+        };
+
+        this.setConfigData = function (configData) {
+
+            var configName = configData.Name != null ? configData.Name : "";
+            var configValue = configData.Value != null ? configData.Value : "";
+            this.DomRootElement.find(".jsonNameField").val(configName);
+            this.DomRootElement.find(".jsonValueField").val(configValue);
+
+            var childConfigNodes = (configData.Children != null && configData.Children.length > 0 ? configData.Children : new Array());
+            var currentNode = this;
+            $.each(childConfigNodes, function (index, child) {
+                var newNode = currentNode.addChild();
+                newNode.setConfigData(child);
+            });
+        };
+    }
+
+</script>
+
+
+<div id="MainView">
+    <div id="ComponentView">
+        <div tabIndex='-1' class="instructionsView">
+            <h2>Configured Components</h2>
+        </div>
+        <div tabIndex='-1' id="ComponentList"></div>
+        <div class="buttonView">
+            <button type="button" id="CreateNewApplicationButton">New Component</button>
+            <button type="button" id="ImportExportDialogButton">Import/Export</button>
+        </div>
+    </div>
+    <div id="WorkingView">
+        <div tabIndex='-1' class="instructionsView">
+            <h1 id="ComponentName"></h1>
+            <span>Please click on a Component Name to edit it or click New Component to create a new one.</span>
+        </div>
+        <div tabIndex='-1' id="DataView"></div>
+        <div class="buttonView">
+            <button id="SaveConfigButton">Save</button>
+            <button id="ExportSingleComponentConfigButton">Export</button>
+            <button id="ResetConfigButton">Reset</button>
+        </div> 
+    </div>
+    <div id="ExportSingleComponentConfigDialog">
+        <textarea id="ExportSingleComponentConfigData" rows="20" cols="80" readonly="readonly"></textarea>
+    </div>
+    <div id="ImportExportDialog">
+        <textarea id="ImportExportData" rows="20" cols="80"></textarea>
+        <button type="button" id="ExportButton">Export Settings</button>
+        <button type="button" id="ImportButton">Import Settings</button>
+    </div>
+    <div id="ResponseDialog"></div>
+</div>

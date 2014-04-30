@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminWebConsole", "AdminWebConsole\AdminWebConsole.csproj", "{6F019147-6750-43B7-B5C1-00FAC3BC7A23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminWebConsole.Tests", "AdminWebConsole.Tests\AdminWebConsole.Tests.csproj", "{4CD824D1-C92A-4241-BEB5-400CB51AD24D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{61E588B6-2743-445C-B73F-C058FC58BDE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Tests", "Data.Tests\Data.Tests.csproj", "{0D97E1C7-2999-480B-A237-E671494CAF53}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7ACB8A96-5C87-460D-8C74-E5634B9DBB78}"
+	ProjectSection(SolutionItems) = preProject
+		Habitat.Server.vsmdi = Habitat.Server.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+		version.xml = version.xml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGetSync", "NuGetSync\NuGetSync.csproj", "{0D4B608F-C76C-4CD5-A102-8B2B290287C4}"
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Habitat.Server.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6F019147-6750-43B7-B5C1-00FAC3BC7A23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F019147-6750-43B7-B5C1-00FAC3BC7A23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F019147-6750-43B7-B5C1-00FAC3BC7A23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F019147-6750-43B7-B5C1-00FAC3BC7A23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CD824D1-C92A-4241-BEB5-400CB51AD24D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CD824D1-C92A-4241-BEB5-400CB51AD24D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CD824D1-C92A-4241-BEB5-400CB51AD24D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CD824D1-C92A-4241-BEB5-400CB51AD24D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61E588B6-2743-445C-B73F-C058FC58BDE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61E588B6-2743-445C-B73F-C058FC58BDE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61E588B6-2743-445C-B73F-C058FC58BDE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61E588B6-2743-445C-B73F-C058FC58BDE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D97E1C7-2999-480B-A237-E671494CAF53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D97E1C7-2999-480B-A237-E671494CAF53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D97E1C7-2999-480B-A237-E671494CAF53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D97E1C7-2999-480B-A237-E671494CAF53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D4B608F-C76C-4CD5-A102-8B2B290287C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D4B608F-C76C-4CD5-A102-8B2B290287C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D4B608F-C76C-4CD5-A102-8B2B290287C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D4B608F-C76C-4CD5-A102-8B2B290287C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
