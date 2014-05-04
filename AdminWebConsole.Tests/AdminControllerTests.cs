@@ -21,7 +21,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
 
         private const string ErrorStringTimeout = "a task was canceled";
         private const string ErrorStringBadAddress = "the remote name could not be resolved";
-        private const string ErrorStringNoHttp = "unable to connect to the remote server";
         private const string ErrorStringConflict = "system.net.webexception: unsuccessful request: conflict";
         private const string ErrorStringResourceNotFound = "system.net.webexception: unsuccessful request: notfound";
         private const string ErrorStringBadRequest = "system.net.webexception: unsuccessful request: badrequest";
@@ -122,16 +121,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             JsonResult jsonResult = InvokeConfigController(controller, controller.GetComponentListAsync,
                                                            controller.GetComponentListCompleted);
             AssertExceptionResponse<List<string>>(jsonResult, ErrorStringBadAddress);
-        }
-
-        [TestMethod]
-        public void Get_component_list_with_no_http_endpoint()
-        {
-            _testContainer.SetDefaultsToProfile(MockRegistry.NoHttpConnection);
-            AdminController controller = _testContainer.GetInstance<AdminController>();
-            JsonResult jsonResult = InvokeConfigController(controller, controller.GetComponentListAsync,
-                                                           controller.GetComponentListCompleted);
-            AssertExceptionResponse<List<string>>(jsonResult, ErrorStringNoHttp);
         }
 
         [TestMethod]
@@ -238,16 +227,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
         }
 
         [TestMethod]
-        public void Add_new_component_with_no_http_endpoint()
-        {
-            _testContainer.SetDefaultsToProfile(MockRegistry.NoHttpConnection);
-            AdminController controller = _testContainer.GetInstance<AdminController>();
-            JsonResult jsonResult = InvokeConfigController(controller, () => controller.AddNewComponentAsync(null),
-                                                           controller.AddNewComponentCompleted);
-            AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
-        }
-
-        [TestMethod]
         public void Get_component_with_good_response()
         {
             ConfigRoot configRoot = CreateValidConfig();
@@ -317,16 +296,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
         }
 
         [TestMethod]
-        public void Get_component_with_no_http_endpoint()
-        {
-            _testContainer.SetDefaultsToProfile(MockRegistry.NoHttpConnection);
-            AdminController controller = _testContainer.GetInstance<AdminController>();
-            JsonResult jsonResult = InvokeConfigController(controller, () => controller.GetComponentAsync("foo"),
-                                                           controller.GetComponentCompleted);
-            AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
-        }
-
-        [TestMethod]
         public void Remove_component_with_good_response()
         {
             AdminController controller = _testContainer.GetInstance<AdminController>();
@@ -377,16 +346,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             JsonResult jsonResult = InvokeConfigController(controller, () => controller.RemoveComponentAsync("foo"),
                                                            controller.RemoveComponentCompleted);
             AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringBadAddress);
-        }
-
-        [TestMethod]
-        public void Remove_component_with_no_http_endpoint()
-        {
-            _testContainer.SetDefaultsToProfile(MockRegistry.NoHttpConnection);
-            AdminController controller = _testContainer.GetInstance<AdminController>();
-            JsonResult jsonResult = InvokeConfigController(controller, () => controller.RemoveComponentAsync("foo"),
-                                                           controller.RemoveComponentCompleted);
-            AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
         }
 
         [TestMethod]
@@ -495,16 +454,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
         }
 
         [TestMethod]
-        public void Save_component_with_no_http_endpoint()
-        {
-            _testContainer.SetDefaultsToProfile(MockRegistry.NoHttpConnection);
-            AdminController controller = _testContainer.GetInstance<AdminController>();
-            JsonResult jsonResult = InvokeConfigController(controller, () => controller.SaveComponentAsync("foo", null),
-                                                           controller.SaveComponentCompleted);
-            AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
-        }
-
-        [TestMethod]
         public void Swap_components_with_good_response()
         {
             AdminController controller = _testContainer.GetInstance<AdminController>();
@@ -575,6 +524,9 @@ namespace Habitat.Server.AdminWebConsole.Tests
                                                             controller.AddNewComponentCompleted);
             AssertJsonResponse(jsonResult2, configRoot2);
 
+            InvokeConfigController(controller,
+                                   () => controller.SwapComponentAsync("config1", "config2"),
+                                   controller.SwapComponentCompleted);
             InvokeConfigController(controller,
                                    () => controller.SwapComponentAsync("config1", "config2"),
                                    controller.SwapComponentCompleted);
@@ -724,18 +676,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
         }
 
         [TestMethod]
-        public void Copy_component_with_no_http_endpoint()
-        {
-            _testContainer.SetDefaultsToProfile(MockRegistry.NoHttpConnection);
-            AdminController controller = _testContainer.GetInstance<AdminController>();
-            JsonResult jsonResult = InvokeConfigController(controller,
-                                                           () =>
-                                                           controller.CopyComponentAsync(string.Empty, string.Empty),
-                                                           controller.CopyComponentCompleted);
-            AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
-        }
-
-        [TestMethod]
         public void Given_valid_config_ensure_that_an_exported_list_can_be_obtained()
         {
             List<ConfigRoot> configList = CreateValidConfigList();
@@ -793,16 +733,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             JsonResult jsonResult = InvokeConfigController(controller, controller.ExportConfigAsync,
                                                            controller.ExportConfigCompleted);
             AssertExceptionResponse<List<ConfigRoot>>(jsonResult, ErrorStringBadAddress);
-        }
-
-        [TestMethod]
-        public void Export_config_with_no_http_endpoint()
-        {
-            _testContainer.SetDefaultsToProfile(MockRegistry.NoHttpConnection);
-            AdminController controller = _testContainer.GetInstance<AdminController>();
-            JsonResult jsonResult = InvokeConfigController(controller, controller.ExportConfigAsync,
-                                                           controller.ExportConfigCompleted);
-            AssertExceptionResponse<List<ConfigRoot>>(jsonResult, ErrorStringNoHttp);
         }
 
         [TestMethod]
@@ -1010,18 +940,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             AssertExceptionResponse<ImportResult>(jsonResult, ErrorStringBadAddress);
         }
 
-        [TestMethod]
-        public void Import_config_with_no_http_endpoint()
-        {
-            List<ConfigRoot> configList = CreateValidConfigList();
-            configList[0].ComponentName = "newitem1";
-            _testContainer.SetDefaultsToProfile(MockRegistry.NoHttpConnection);
-            AdminController controller = _testContainer.GetInstance<AdminController>();
-            JsonResult jsonResult = InvokeConfigController(controller, () => controller.ImportConfigAsync(configList),
-                                                           controller.ImportConfigCompleted);
-            AssertExceptionResponse<ImportResult>(jsonResult, ErrorStringNoHttp);
-        }
-
         private void AssertJsonResponse<TR>(JsonResult jsonResult, TR expectedResponse)
         {
             Assert.IsNotNull(jsonResult);
@@ -1054,7 +972,7 @@ namespace Habitat.Server.AdminWebConsole.Tests
             ConfigRoot root = new ConfigRoot();
             root.ComponentName = "foo";
             root.LastModified = new DateTime(2009, 11, 14);
-                // JSON.NET loses the last 4 digits for Ticks when doing a round-trip conversion so we can't use DateTime.Now if we want to check output
+            // JSON.NET loses the last 4 digits for Ticks when doing a round-trip conversion so we can't use DateTime.Now if we want to check output
             var node = new ConfigNode();
             node.Name = root.ComponentName;
             node.Children = new List<ConfigNode>

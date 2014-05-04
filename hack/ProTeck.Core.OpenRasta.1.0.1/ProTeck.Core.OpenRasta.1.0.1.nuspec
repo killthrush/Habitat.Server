@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ProTeck.Core.OpenRasta</id>
+    <version>1.0.1</version>
+    <title>ProTeck.Core.OpenRasta</title>
+    <authors>Pro Teck Valuation Services IT Engineering</authors>
+    <owners>Pro Teck Valuation Services IT Engineering</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Contains core libraries used by all Pro Teck OpenRasta-capable applications like Data services.  Includes facilities for:
+      - Hosting OpenRasta endpoints
+      - Managing ModifiedSince and IfMatch headers
+      - Managing document conflicts</description>
+    <summary>Contains core libraries used by all Pro Teck OpenRasta-capable applications like Data services</summary>
+    <releaseNotes />
+    <tags>ProTeck Library</tags>
+  </metadata>
+</package>
