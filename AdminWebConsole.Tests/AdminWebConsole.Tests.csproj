@@ -44,6 +44,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Habitat.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Habitat.Core.1.0.0\lib\net40\Habitat.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Habitat.Core.TestingLibrary">
+      <HintPath>..\packages\Habitat.Core.TestingLibrary.1.0.0\lib\net40\Habitat.Core.TestingLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="KellermanSoftware.Compare-NET-Objects">
       <HintPath>..\packages\CompareNETObjects.2.01.0.0\lib\net40\KellermanSoftware.Compare-NET-Objects.dll</HintPath>
     </Reference>
@@ -97,14 +103,6 @@
     <ProjectReference Include="..\AdminWebConsole\AdminWebConsole.csproj">
       <Project>{6F019147-6750-43B7-B5C1-00FAC3BC7A23}</Project>
       <Name>AdminWebConsole</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Core.TestingLibrary\Core.TestingLibrary.csproj">
-      <Project>{FD698D8E-81C4-493A-8FB1-89B3EB6FBC47}</Project>
-      <Name>Core.TestingLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Core\Core.csproj">
-      <Project>{B2E32B2A-22CB-4A34-A146-E68F6EE414CB}</Project>
-      <Name>Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

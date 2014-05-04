@@ -177,4 +177,4 @@ FakesAssemblies/
 
 **/AssemblyInfo.cs
 */_AssemblyInfo.cs
-
+*.nupkg
