@@ -22,6 +22,8 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,45 +44,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Moq, Version=3.1.416.3, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\MOQ.3.1.0.0\lib\Moq.dll</HintPath>
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.2.1402.2112\lib\net40\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="ParallelExtensionsExtras">
-      <HintPath>..\packages\TPLExtensions.1.2.0.0\lib\ParallelExtensionsExtras.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Config.Dto.V1">
-      <HintPath>..\packages\ProTeck.Config.Dto.1.0.1\lib\net40\ProTeck.Config.Dto.V1.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core">
-      <HintPath>..\packages\ProTeck.Core.2.1.0\lib\net40\ProTeck.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core.Log">
-      <HintPath>..\packages\ProTeck.Core.2.1.0\lib\net40\ProTeck.Core.Log.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core.OpenRasta">
-      <HintPath>..\packages\ProTeck.Core.OpenRasta.1.0.1\lib\net40\ProTeck.Core.OpenRasta.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core.TestingLibrary">
-      <HintPath>..\packages\ProTeck.Core.TestingLibrary.1.0.4\lib\net40\ProTeck.Core.TestingLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core.Utility">
-      <HintPath>..\packages\ProTeck.Core.2.1.0\lib\net40\ProTeck.Core.Utility.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap">
       <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
     </Reference>
+    <Reference Include="ProTeck.Core.OpenRasta">
+      <HintPath>..\packages\ProTeck.Core.OpenRasta.1.0.1\lib\net40\ProTeck.Core.OpenRasta.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Json">
-      <HintPath>..\packages\System.Net.Http.2.0.20710.0\lib\System.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http">
-      <HintPath>..\packages\System.Net.Http.2.0.20710.0\lib\System.Net.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.WebRequest">
-      <HintPath>..\packages\System.Net.Http.2.0.20710.0\lib\System.Net.Http.WebRequest.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +71,14 @@
     <Compile Include="ConfigHandlerTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core.TestingLibrary\Core.TestingLibrary.csproj">
+      <Project>{FD698D8E-81C4-493A-8FB1-89B3EB6FBC47}</Project>
+      <Name>Core.TestingLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{B2E32B2A-22CB-4A34-A146-E68F6EE414CB}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Data\Data.csproj">
       <Project>{61E588B6-2743-445C-B73F-C058FC58BDE0}</Project>
       <Name>Data</Name>
@@ -102,12 +88,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Proteck\GenerateAssemblyAttributes.wpp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <Import Project="$(SolutionDir)\GenerateAssemblyAttributes.wpp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

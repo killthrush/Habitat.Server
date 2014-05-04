@@ -6,16 +6,16 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Habitat.Core;
+using Habitat.Core.TestingLibrary;
 using Newtonsoft.Json;
-using ProTeck.Config.Dto.V1;
-using ProTeck.Core.TestingLibrary;
 
 namespace Habitat.Server.AdminWebConsole.Tests
 {
     /// <summary>
-    /// Mock request handler that acts like Config Service
+    /// Mock request handler that acts like Habitat Server
     /// </summary>
-    public class MockConfigService : FakeHttpRequestHandler
+    public class MockHabitatServer : FakeHttpRequestHandler
     {
         private const string JsonMediaType = "application/json";
         private const string ComponentNameMatchPattern = @"http://fake/Config/(\w+)/?$";

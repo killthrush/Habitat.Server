@@ -7,7 +7,7 @@ namespace Habitat.Server.AdminWebConsole.Controllers
     public class ConfigResults<TR>
     {
         /// <summary>
-        /// Contains data from the Config Service for a requested action.  Null if there's no data or if there's an error.
+        /// Contains data from the Habitat Server for a requested action.  Null if there's no data or if there's an error.
         /// </summary>
         public TR Data { get; set; }
 

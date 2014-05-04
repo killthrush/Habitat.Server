@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="GenerateAssemblyAttributes;Build;Package;DeployApp;Staging" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="GenerateAssemblyAttributes;Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -22,6 +22,8 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,23 +48,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="ProTeck.Config.Dto.V1">
-      <HintPath>..\packages\ProTeck.Config.Dto.1.0.1\lib\net40\ProTeck.Config.Dto.V1.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core">
-      <HintPath>..\packages\ProTeck.Core.2.1.0\lib\net40\ProTeck.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core.Log">
-      <HintPath>..\packages\ProTeck.Core.2.1.0\lib\net40\ProTeck.Core.Log.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core.OpenRasta">
-      <HintPath>..\packages\ProTeck.Core.OpenRasta.1.0.1\lib\net40\ProTeck.Core.OpenRasta.dll</HintPath>
-    </Reference>
-    <Reference Include="ProTeck.Core.Utility">
-      <HintPath>..\packages\ProTeck.Core.2.1.0\lib\net40\ProTeck.Core.Utility.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap">
       <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
+    </Reference>
+    <Reference Include="ProTeck.Core.OpenRasta">
+      <HintPath>..\packages\ProTeck.Core.OpenRasta.1.0.1\lib\net40\ProTeck.Core.OpenRasta.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -95,11 +88,15 @@
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{B2E32B2A-22CB-4A34-A146-E68F6EE414CB}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Proteck\WebApps_AppServer.wpp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Proteck\GenerateAssemblyAttributes.wpp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Proteck\staging.wpp.targets" />
+  <Import Project="$(SolutionDir)\GenerateAssemblyAttributes.wpp.targets" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
@@ -122,4 +119,5 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

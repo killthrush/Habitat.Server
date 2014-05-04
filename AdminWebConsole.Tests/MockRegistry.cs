@@ -1,8 +1,9 @@
 using System;
 using System.Net.Http;
+using SystemInterface;
 using SystemWrapper;
+using Habitat.Core.TestingLibrary;
 using Moq;
-using ProTeck.Core.TestingLibrary;
 using StructureMap.Configuration.DSL;
 
 namespace Habitat.Server.AdminWebConsole.Tests
@@ -25,10 +26,10 @@ namespace Habitat.Server.AdminWebConsole.Tests
         /// </summary>
         public MockRegistry()
         {
-            Mock<IDateTimeWrap> mockDateProvider = new Mock<IDateTimeWrap>(MockBehavior.Strict);
+            Mock<IDateTime> mockDateProvider = new Mock<IDateTime>(MockBehavior.Strict);
             mockDateProvider.SetupGet(x => x.Now).Returns(new DateTimeWrap(new DateTime(2011, 1, 2)));
-            For<IDateTimeWrap>().Use(() => mockDateProvider.Object);
-            For<HttpClient>().Use(() => HttpClientTestHelper.CreateStandardFakeClient(new MockConfigService()));
+            For<IDateTime>().Use(() => mockDateProvider.Object);
+            For<HttpClient>().Use(() => HttpClientTestHelper.CreateStandardFakeClient(new MockHabitatServer()));
 
             Profile(NoHttpConnection, x => x.For<HttpClient>().Use(HttpClientTestHelper.CreateClientSimulatingServerWithNoHttpEndpoint));
             Profile(BadHttpAddress, x => x.For<HttpClient>().Use(HttpClientTestHelper.CreateClientSimulatingABadAddress));

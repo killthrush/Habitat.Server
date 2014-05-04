@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using Habitat.Core;
 using OpenRasta.Configuration;
 using OpenRasta.DI;
 using Habitat.Server.Data.Codecs;
 using Habitat.Server.Data.Handlers;
-using ProTeck.Config.Dto.V1;
 using OpenRasta.Web;
 using StructureMap;
 
@@ -12,8 +12,8 @@ namespace Habitat.Server.Data
     /// <summary>
     /// By OpenRasta convention, this class configures the web application. It sets up routes,
     /// handlers, codecs, and any custom dependency injection. In this case, it also sets up 
-    /// StructureMap configuration. StructureMap is not used to resolve internal OpenRasta dependencies,
-    /// but is used within the handlers and codecs for any Pro Teck code.
+    /// StructureMap configuration. StructureMap is not used to resolve internal OpenRasta dependencies
+    /// as it's not officially supported, but is used within the handlers and codecs.
     /// </summary>
     public class Configuration : IConfigurationSource
     {
@@ -40,7 +40,7 @@ namespace Habitat.Server.Data
         }
 
         /// <summary>
-        /// Configures OpenRasta and StructureMap for the Config service.
+        /// Configures OpenRasta and StructureMap for the Habitat Server.
         /// </summary>
         public void Configure()
         {

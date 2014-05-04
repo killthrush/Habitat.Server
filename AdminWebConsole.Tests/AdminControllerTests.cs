@@ -3,24 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks.Schedulers;
 using System.Web.Mvc;
+using Habitat.Core;
+using Habitat.Core.TestingLibrary;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Habitat.Server.AdminWebConsole.Controllers;
-using ProTeck.Core.TestingLibrary;
 using StructureMap;
-using ProTeck.Config.Dto.V1;
 
 namespace Habitat.Server.AdminWebConsole.Tests
 {
     [TestClass]
     public class AdminControllerTests
     {
-        #region Constants
-
         private const string ErrorStringCannotDeserializeException = "cannot deserialize the current json array";
         private const string ErrorStringCannotDeserializeObjectException = "cannot deserialize the current json object";
-        private const string ErrorStringServerError =
-            "system.net.webexception: unsuccessful request: internalservererror";
+        private const string ErrorStringServerError = "system.net.webexception: unsuccessful request: internalservererror";
 
         private const string ErrorStringTimeout = "a task was canceled";
         private const string ErrorStringBadAddress = "the remote name could not be resolved";
@@ -33,16 +30,8 @@ namespace Habitat.Server.AdminWebConsole.Tests
         private const string ImportSuccessMessage = "Component '{0}' imported successfully.";
         private const string ErrorStringUnexpectedChar = "unexpected character encountered while parsing value";
 
-        #endregion Constants
-
-        #region Fields
-
-        private readonly CompareObjects _objectComparer = new CompareObjects();
+        private readonly CompareLogic _objectComparer = new CompareLogic();
         private IContainer _testContainer;
-
-        #endregion Fields
-
-        #region Setup / Teardown
 
         [ClassInitialize]
         public static void FixtureSetUp(TestContext context)
@@ -67,10 +56,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             _testContainer = null;
         }
 
-        #endregion Setup / Teardown
-
-        #region Index Tests
-
         [TestMethod]
         public void Ensure_that_the_default_view_can_be_loaded()
         {
@@ -79,10 +64,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             Assert.IsNotNull(view);
             Assert.AreEqual(String.Empty, view.ViewName);
         }
-
-        #endregion Index Tests
-
-        #region GetComponents Tests
 
         [TestMethod]
         public void Get_component_list_with_good_response()
@@ -152,10 +133,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
                                                            controller.GetComponentListCompleted);
             AssertExceptionResponse<List<string>>(jsonResult, ErrorStringNoHttp);
         }
-
-        #endregion GetComponents Tests
-
-        #region AddNewComponent Tests
 
         [TestMethod]
         public void Add_new_component_with_good_response()
@@ -270,10 +247,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
         }
 
-        #endregion AddNewComponent Tests
-
-        #region GetComponent Tests
-
         [TestMethod]
         public void Get_component_with_good_response()
         {
@@ -353,10 +326,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
         }
 
-        #endregion GetComponent Tests
-
-        #region RemoveComponent Tests
-
         [TestMethod]
         public void Remove_component_with_good_response()
         {
@@ -419,10 +388,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
                                                            controller.RemoveComponentCompleted);
             AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
         }
-
-        #endregion RemoveComponent Tests
-
-        #region SaveComponent Tests
 
         [TestMethod]
         public void Save_component_with_good_response()
@@ -539,10 +504,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
         }
 
-        #endregion SaveComponent Tests
-
-        #region SwapComponent Tests
-
         [TestMethod]
         public void Swap_components_with_good_response()
         {
@@ -566,9 +527,9 @@ namespace Habitat.Server.AdminWebConsole.Tests
                                                             controller.AddNewComponentCompleted);
             AssertJsonResponse(jsonResult2, configRoot2);
 
-            JsonResult jsonResult = InvokeConfigController(controller,
-                                                           () => controller.SwapComponentAsync("config1", "config2"),
-                                                           controller.SwapComponentCompleted);
+            InvokeConfigController(controller,
+                                   () => controller.SwapComponentAsync("config1", "config2"),
+                                   controller.SwapComponentCompleted);
 
             ConfigRoot expectedConfigRoot1 = CreateValidConfig();
             expectedConfigRoot1.ComponentName = "config1";
@@ -614,12 +575,9 @@ namespace Habitat.Server.AdminWebConsole.Tests
                                                             controller.AddNewComponentCompleted);
             AssertJsonResponse(jsonResult2, configRoot2);
 
-            JsonResult jsonResult = InvokeConfigController(controller,
-                                                           () => controller.SwapComponentAsync("config1", "config2"),
-                                                           controller.SwapComponentCompleted);
-            jsonResult = InvokeConfigController(controller,
-                                                () => controller.SwapComponentAsync("config1", "config2"),
-                                                controller.SwapComponentCompleted);
+            InvokeConfigController(controller,
+                                   () => controller.SwapComponentAsync("config1", "config2"),
+                                   controller.SwapComponentCompleted);
 
             JsonResult jsonResultUpdatedConfig1 = InvokeConfigController(controller,
                                                                          () => controller.GetComponentAsync("config1"),
@@ -671,10 +629,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
 
             AssertExceptionResponse<List<ConfigRoot>>(jsonResult, ErrorStringResourceNotFound);
         }
-
-        #endregion
-
-        #region CopyComponent Tests
 
         [TestMethod]
         public void Copy_component_with_good_response()
@@ -781,10 +735,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             AssertExceptionResponse<ConfigRoot>(jsonResult, ErrorStringNoHttp);
         }
 
-        #endregion CopyComponent Tests
-
-        #region ExportConfig Tests
-
         [TestMethod]
         public void Given_valid_config_ensure_that_an_exported_list_can_be_obtained()
         {
@@ -854,10 +804,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
                                                            controller.ExportConfigCompleted);
             AssertExceptionResponse<List<ConfigRoot>>(jsonResult, ErrorStringNoHttp);
         }
-
-        #endregion ExportConfig Tests
-
-        #region ImportConfig Tests
 
         [TestMethod]
         public void Ensure_that_a_valid_list_of_new_items_can_be_imported()
@@ -1076,10 +1022,6 @@ namespace Habitat.Server.AdminWebConsole.Tests
             AssertExceptionResponse<ImportResult>(jsonResult, ErrorStringNoHttp);
         }
 
-        #endregion ImportConfig Tests
-
-        #region Helper Methods
-
         private void AssertJsonResponse<TR>(JsonResult jsonResult, TR expectedResponse)
         {
             Assert.IsNotNull(jsonResult);
@@ -1088,7 +1030,8 @@ namespace Habitat.Server.AdminWebConsole.Tests
             Assert.IsInstanceOfType(jsonResult.Data, typeof (ConfigResults<TR>));
             var configResults = (ConfigResults<TR>) jsonResult.Data;
             Assert.IsNotNull(configResults.Data);
-            Assert.IsTrue(_objectComparer.Compare(expectedResponse, configResults.Data));
+            ComparisonResult comparisonResult = _objectComparer.Compare(expectedResponse, configResults.Data);
+            Assert.IsTrue(comparisonResult.AreEqual, comparisonResult.DifferencesString);
             Assert.IsNull(configResults.ExceptionMessage);
         }
 
@@ -1168,7 +1111,5 @@ namespace Habitat.Server.AdminWebConsole.Tests
         {
             return controller.InvokeAsyncController(startAction, completedAction, "configResults");
         }
-
-        #endregion Helper Methods
     }
 }

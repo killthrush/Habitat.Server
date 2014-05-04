@@ -4,7 +4,6 @@ using System.Text;
 using Newtonsoft.Json;
 using OpenRasta.Codecs;
 using OpenRasta.Web;
-using ProTeck.Core.Log;
 using StructureMap;
 
 namespace Habitat.Server.Data.Codecs
@@ -22,7 +21,7 @@ namespace Habitat.Server.Data.Codecs
         /// <summary>
         /// Logger instance to use
         /// </summary>
-        private readonly ILog _log;
+        //private readonly ILog _log;
 
         /// <summary>
         /// Injected configuration object (part of IMediaTypeReader, IMediaTypeWriter)
@@ -36,7 +35,7 @@ namespace Habitat.Server.Data.Codecs
         public ConfigListCodec(IContainer container)
         {
             _container = container;
-            _log = _container.GetInstance<ILog>();
+           // _log = _container.GetInstance<ILog>();
         }
 
         /// <summary>
@@ -49,7 +48,7 @@ namespace Habitat.Server.Data.Codecs
         {
             try
             {
-                _log.Debug("Entering ConfigListCodec.WriteTo()");
+                //_log.Debug("Entering ConfigListCodec.WriteTo()");
 
                 var data = JsonConvert.SerializeObject(entity);
 
@@ -61,7 +60,7 @@ namespace Habitat.Server.Data.Codecs
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                //_log.Error(ex);
                 throw;
             }
         }

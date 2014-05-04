@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Json;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -8,30 +7,30 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.UI;
-using SystemWrapper;
+using SystemInterface;
+using Habitat.Core;
 using Newtonsoft.Json;
-using ProTeck.Config.Dto.V1;
 
 namespace Habitat.Server.AdminWebConsole.Controllers
 {
     /// <summary>
-    /// Controller that handles administration of the Config Service
+    /// Controller that handles administration of the Habitat Server
     /// </summary>
     [OutputCache(NoStore = true, Location = OutputCacheLocation.None)]
     public class AdminController : AsyncController
     {
         /// <summary>
-        /// Media type to use when sending data to Config Service in a POST or PUT request
+        /// Media type to use when sending data to Habitat Server in a POST or PUT request
         /// </summary>
         private const string ConfigMediaType = "application/json";
 
         /// <summary>
-        /// Name of the root level resource used with config service URLs
+        /// Name of the root level resource used with Habitat Server URLs
         /// </summary>
         private const string ConfigResourceRoot = "Config";
 
         /// <summary>
-        /// The HttpClient implementation to use for interfacing with the Config Service.
+        /// The HttpClient implementation to use for interfacing with the Habitat Server.
         /// It's assumed that this implementation has been set up with the correct URL and security settings.
         /// </summary>
         private readonly HttpClient _httpConfigClient;
@@ -39,17 +38,17 @@ namespace Habitat.Server.AdminWebConsole.Controllers
         /// <summary>
         /// Provides timestamps in a loosely-coupled manner
         /// </summary>
-        private readonly IDateTimeWrap _dateProvider;
+        private readonly IDateTime _dateProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdminController"/> class.
         /// </summary>
         /// <param name="httpConfigClient">
-        /// The HttpClient implementation to use for interfacing with the Config Service.
+        /// The HttpClient implementation to use for interfacing with the Habitat Server.
         /// It's assumed that this implementation has been set up with the correct URL and security settings.
         /// </param>
         /// <param name="dateProvider">Provides timestamps in a loosely-coupled manner</param>
-        public AdminController(HttpClient httpConfigClient, IDateTimeWrap dateProvider)
+        public AdminController(HttpClient httpConfigClient, IDateTime dateProvider)
         {
             _httpConfigClient = httpConfigClient;
             _dateProvider = dateProvider;
@@ -83,7 +82,7 @@ namespace Habitat.Server.AdminWebConsole.Controllers
         private Task<ConfigResults<List<string>>> GetComponentListInternal()
         {
             var serviceCallTask = _httpConfigClient.GetAsync(ConfigResourceRoot);
-            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<List<string>>>(HandleConfigServiceResponse<JsonArray, List<string>>);
+            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<List<string>>>(HandleConfigServiceResponse<List<string>>);
             return handleResponseTask;
         }
 
@@ -118,7 +117,7 @@ namespace Habitat.Server.AdminWebConsole.Controllers
         private Task<ConfigResults<ConfigRoot>> GetComponentInternal(string componentName)
         {
             var serviceCallTask = _httpConfigClient.GetAsync(string.Format("{0}/{1}", ConfigResourceRoot, componentName));
-            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<ConfigRoot>>(HandleConfigServiceResponse<JsonObject, ConfigRoot>);
+            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<ConfigRoot>>(HandleConfigServiceResponse<ConfigRoot>);
             return handleResponseTask;
         }
 
@@ -157,7 +156,7 @@ namespace Habitat.Server.AdminWebConsole.Controllers
             string componentJson = JsonConvert.SerializeObject(component);
             HttpContent content = new StringContent(componentJson, Encoding.UTF8, ConfigMediaType);
             var serviceCallTask = _httpConfigClient.PutAsync(string.Format("{0}/{1}", ConfigResourceRoot, componentName), content);
-            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<ConfigRoot>>(HandleConfigServiceResponse<JsonObject, ConfigRoot>);
+            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<ConfigRoot>>(HandleConfigServiceResponse<ConfigRoot>);
             return handleResponseTask;
         }
         
@@ -195,7 +194,7 @@ namespace Habitat.Server.AdminWebConsole.Controllers
             string newComponentJson = JsonConvert.SerializeObject(newComponent);
             HttpContent content = new StringContent(newComponentJson, Encoding.UTF8, ConfigMediaType);
             var serviceCallTask = _httpConfigClient.PostAsync(ConfigResourceRoot, content);
-            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<ConfigRoot>>(HandleConfigServiceResponse<JsonObject, ConfigRoot>);
+            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<ConfigRoot>>(HandleConfigServiceResponse<ConfigRoot>);
             return handleResponseTask;
         }
 
@@ -220,7 +219,7 @@ namespace Habitat.Server.AdminWebConsole.Controllers
         {
             AsyncManager.OutstandingOperations.Increment();
             var serviceCallTask = _httpConfigClient.DeleteAsync(string.Format("{0}/{1}", ConfigResourceRoot, componentName));
-            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<ConfigRoot>>(HandleConfigServiceResponse<JsonObject, ConfigRoot>);
+            var handleResponseTask = serviceCallTask.ContinueWith<ConfigResults<ConfigRoot>>(HandleConfigServiceResponse<ConfigRoot>);
             handleResponseTask.ContinueWith(x => CompleteAsyncOperation(x.Result));
         }
 
@@ -461,13 +460,11 @@ namespace Habitat.Server.AdminWebConsole.Controllers
         }
 
         /// <summary>
-        /// Helper method to handle all responses from config service (including errors) in a consistent manner
+        /// Helper method to handle all responses from Habitat Server (including errors) in a consistent manner
         /// </summary>
-        /// <typeparam name="TJ">The type of JSON response to expect from the service</typeparam>
         /// <typeparam name="TR">The type of data object that's inside the ConfigResults instance returned by this method</typeparam>
         /// <param name="task">The response task from the HttpClient</param>
-        private ConfigResults<TR> HandleConfigServiceResponse<TJ, TR>(Task<HttpResponseMessage> task)
-            where TJ : class
+        private ConfigResults<TR> HandleConfigServiceResponse<TR>(Task<HttpResponseMessage> task)
         {
             ConfigResults<TR> configResults = new ConfigResults<TR>();
             try
@@ -477,7 +474,7 @@ namespace Habitat.Server.AdminWebConsole.Controllers
                 {
                     if (response.StatusCode != HttpStatusCode.NoContent)
                     {
-                        var dataReadTask = response.Content.ReadAsStringAsync().ContinueWith(x => ReadConfigServiceJson<TJ, TR>(x));
+                        var dataReadTask = response.Content.ReadAsStringAsync().ContinueWith(x => ReadConfigServiceJson<TR>(x));
                         dataReadTask.Wait();
                         configResults = dataReadTask.Result;
                     }
@@ -495,13 +492,11 @@ namespace Habitat.Server.AdminWebConsole.Controllers
         }
 
         /// <summary>
-        /// Helper method to parse config service responses as the appropriate JSON type and format for readability.
+        /// Helper method to parse Habitat Server responses as the appropriate JSON type and format for readability.
         /// </summary>
-        /// <typeparam name="TJ">The expected type of JSON being returned (e.g. array)</typeparam>
         /// <typeparam name="TR">The type of data object that's inside the ConfigResults instance returned by this method</typeparam>
-        /// <param name="readTask">The config service response task that provides the JSON values</param>
-        private ConfigResults<TR> ReadConfigServiceJson<TJ, TR>(Task<string> readTask)
-            where TJ : class
+        /// <param name="readTask">The Habitat Server response task that provides the JSON values</param>
+        private ConfigResults<TR> ReadConfigServiceJson<TR>(Task<string> readTask)
         {
             ConfigResults<TR> configResults = new ConfigResults<TR>();
             try

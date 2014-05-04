@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Habitat.Core;
 using OpenRasta.Web;
-using ProTeck.Config.Dto.V1;
-using ProTeck.Core.Log;
 using ProTeck.Core.OpenRasta;
-using ProTeck.Core.Repository;
 using StructureMap;
 
 namespace Habitat.Server.Data.Handlers
@@ -31,7 +29,7 @@ namespace Habitat.Server.Data.Handlers
         /// <summary>
         /// Logger instance to use
         /// </summary>
-        private readonly ILog _log;
+        //private readonly ILog _log;
 
         /// <summary>
         /// Constructs an instance of FileResourceHandler
@@ -46,7 +44,7 @@ namespace Habitat.Server.Data.Handlers
             _container = container;
 
             _repository = _container.GetInstance<IRepository<IJsonEntity<ConfigRoot>>>();
-            _log = _container.GetInstance<ILog>();
+            //_log = _container.GetInstance<ILog>();
         }
 
         /// <summary>
@@ -71,7 +69,7 @@ namespace Habitat.Server.Data.Handlers
         /// </returns>
         public OperationResult Get(string componentName)
         {
-            _log.Debug(string.Format("Entering ConfigHandler.Get(). componentName = '{0}'", componentName));
+           // _log.Debug(string.Format("Entering ConfigHandler.Get(). componentName = '{0}'", componentName));
 
             try
             {
@@ -80,7 +78,7 @@ namespace Habitat.Server.Data.Handlers
 
                 if (configEntity == null)
                 {
-                    _log.Debug(string.Format("Returning 404 Not Found for resource {0}", componentName));
+                    //_log.Debug(string.Format("Returning 404 Not Found for resource {0}", componentName));
                     return new OperationResult.NotFound();
                 }
 
@@ -92,7 +90,7 @@ namespace Habitat.Server.Data.Handlers
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+               // _log.Error(ex);
                 throw;
             }
         }
@@ -108,7 +106,7 @@ namespace Habitat.Server.Data.Handlers
         /// </returns>
         public OperationResult Post(ConfigRoot config)
         {
-            _log.Debug("Entering ConfigHandler.Post()");
+           // _log.Debug("Entering ConfigHandler.Post()");
 
             try
             {
@@ -117,13 +115,13 @@ namespace Habitat.Server.Data.Handlers
 
                 if (configEntity != null)
                 {
-                    _log.Debug(string.Format("Returning 400 Bad Request for POST to component {0}", config.ComponentName));
+                   // _log.Debug(string.Format("Returning 400 Bad Request for POST to component {0}", config.ComponentName));
                     return new OperationResult.BadRequest();
                 }
 
                 if (config.ComponentName == null || Regex.IsMatch(config.ComponentName, @"\W"))
                 {
-                    _log.Debug(string.Format("Returning 400 Bad Request for POST to component {0}", config.ComponentName));
+                    //_log.Debug(string.Format("Returning 400 Bad Request for POST to component {0}", config.ComponentName));
                     return new OperationResult.BadRequest();
                 }
 
@@ -140,7 +138,7 @@ namespace Habitat.Server.Data.Handlers
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                //_log.Error(ex);
                 throw;
             }
 
@@ -162,7 +160,7 @@ namespace Habitat.Server.Data.Handlers
         /// </remarks>
         public OperationResult Put(string componentName, ConfigRoot config)
         {
-            _log.Debug("Entering ConfigHandler.Put()");
+           // _log.Debug("Entering ConfigHandler.Put()");
 
             try
             {
@@ -171,7 +169,7 @@ namespace Habitat.Server.Data.Handlers
 
                 if (requestedEntity == null)
                 {
-                    _log.Debug(string.Format("Returning 404 Not Found for resource {0}", componentName));
+                  //  _log.Debug(string.Format("Returning 404 Not Found for resource {0}", componentName));
                     return new OperationResult.NotFound();
                 }
 
@@ -185,10 +183,10 @@ namespace Habitat.Server.Data.Handlers
                         x => x.Contents.ComponentName.ToUpper() == config.ComponentName.ToUpper());
                 if (existingEntity != null && config.ComponentName.ToUpper() != componentName.ToUpper())
                 {
-                    _log.Debug(
+                    /*_log.Debug(
                         string.Format(
                             "Returning 409 Conflict for resource {0} - attempted to change name to existing resource {1}",
-                            componentName, config.ComponentName));
+                            componentName, config.ComponentName));*/
                     return new ConflictOperationResult();
                 }
 
@@ -203,7 +201,7 @@ namespace Habitat.Server.Data.Handlers
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                //_log.Error(ex);
                 throw;
             }
 
@@ -220,7 +218,7 @@ namespace Habitat.Server.Data.Handlers
         /// </returns>
         public OperationResult Delete(string componentName)
         {
-            _log.Debug(string.Format("Entering ConfigHandler.Delete(). componentName = '{0}'", componentName));
+            //_log.Debug(string.Format("Entering ConfigHandler.Delete(). componentName = '{0}'", componentName));
 
             try
             {
@@ -229,7 +227,7 @@ namespace Habitat.Server.Data.Handlers
 
                 if (configEntity == null)
                 {
-                    _log.Debug(string.Format("Returning 404 Not Found for resource {0}", componentName));
+                   // _log.Debug(string.Format("Returning 404 Not Found for resource {0}", componentName));
                     return new OperationResult.NotFound();
                 }
 
@@ -240,7 +238,7 @@ namespace Habitat.Server.Data.Handlers
             }
             catch (Exception ex)
             {
-                _log.Error(ex);
+                //_log.Error(ex);
                 throw;
             }
         }

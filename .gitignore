@@ -122,8 +122,13 @@ publish/
 *.[Pp]ublish.xml
 *.azurePubxml
 
+
 # NuGet Packages Directory
-packages/
+#packages/**/**
+
+#!packages/repositories.config
+#!packages/ProTeck.Core.OpenRasta.1.0.1/**/*.*
+
 ## TODO: If the tool you use requires repositories.config uncomment the next line
 #!packages/repositories.config
 
@@ -172,7 +177,7 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
-Data.Tests/_AssemblyInfo.cs
-Data/_AssemblyInfo.cs
-AdminWebConsole/_AssemblyInfo.cs
-AdminWebConsole.Tests/_AssemblyInfo.cs
+
+**/AssemblyInfo.cs
+*/_AssemblyInfo.cs
+

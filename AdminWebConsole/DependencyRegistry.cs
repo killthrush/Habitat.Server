@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Web.Mvc;
+using SystemInterface;
 using SystemWrapper;
 using StructureMap.Configuration.DSL;
 
@@ -14,7 +15,7 @@ namespace Habitat.Server.AdminWebConsole
         public DependencyRegistry(string configServiceUrl)
         {
             For<IControllerActivator>().Use<StructureMapControllerActivator>();
-            For<IDateTimeWrap>().Use(() => new DateTimeWrap(new DateTime()));
+            For<IDateTime>().Use(() => new DateTimeWrap(new DateTime()));
             For<HttpClient>().Singleton().Use(() =>
                                               {
                                                   // Set up the default client to use NTLM.  This assumes that the admin console application is also secured with NTLM, as it should be.

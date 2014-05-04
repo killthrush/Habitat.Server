@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\ExtensionPack\4.0\MSBuild.ExtensionPack.tasks" />
+
+  <Target Name="GenerateAssemblyAttributes">
+
+    <PropertyGroup>
+      <buildDate1>$([System.DateTime]::Now.ToString(`ss`))</buildDate1>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <buildDate>$([System.DateTime]::Now.ToString(`yyyy.MM.dd`))</buildDate>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <Year>$([System.DateTime]::Now.Year.ToString())</Year>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <DayOfYear>$([System.DateTime]::Now.DayOfYear.ToString().PadLeft(3, '0'))</DayOfYear>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+      <SecondsInDay>$([System.DateTime]::Now.TimeOfDay.TotalSeconds)</SecondsInDay>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <SecondsInDayInt>$([System.Math]::Truncate($(SecondsInDay)).ToString().PadLeft(5, '0'))</SecondsInDayInt>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <BuildNumber>$(Year).$(DayOfYear).$(SecondsInDayInt)</BuildNumber>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <ComponentBaseVersion>0.0.0</ComponentBaseVersion>
+    </PropertyGroup>
+
+    <!-- If building only the project, SolutionDir will be undefined, so it will fail. -->
+    <PropertyGroup>
+      <SolutionDir Condition="'$(SolutionDir)' == '*Undefined*'">$(ProjectDir)..\</SolutionDir>
+      <SolutionDir Condition="'$(SolutionDir)' != '*Undefined*'">$(SolutionDir)</SolutionDir>
+    </PropertyGroup>
+    
+    <MSBuild.ExtensionPack.Xml.XmlFile TaskAction="ReadAttribute" File="$(SolutionDir)\version.xml"
+                                           XPath="/Versions/Version[last()]/@number" Condition="Exists('$(SolutionDir)\version.xml')">
+      <Output PropertyName="ComponentBaseVersion" TaskParameter="Value" />
+    </MSBuild.ExtensionPack.Xml.XmlFile>
+    
+    <!-- If the version wasn't successfully retrieved from the version file, just use 0.0.0. This is mainly for NCrunch -->
+    <PropertyGroup>
+      <ComponentBaseVersion Condition="'$(ComponentBaseVersion)' == ''">0.0.0</ComponentBaseVersion>
+    </PropertyGroup>
+    
+    <Message Text="BuildNumber:$(BuildNumber)"/>
+    <Message Text="ComponentBaseVersion:$(ComponentBaseVersion)"/>
+
+    <!-- version is build from ComponentVersion in the solution's version.xml with build number appended -->
+    <Message Text="Semantic version: $(ComponentBaseVersion).$(BuildNumber)"/>
+
+    <ItemGroup>
+      <AssemblyAttributes Include="AssemblyTitle">
+        <_Parameter1>$(AssemblyName)</_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyDescription">
+        <_Parameter1></_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyConfiguration">
+        <_Parameter1></_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyCompany">
+        <_Parameter1></_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyProduct">
+        <_Parameter1>$(AssemblyName)</_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyCopyright">
+        <_Parameter1>Copyright © Ben Peterson $([System.DateTime]::Now.Year)</_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyTrademark">
+        <_Parameter1></_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyCulture">
+        <_Parameter1></_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyVersion">
+        <_Parameter1>$(ComponentBaseVersion)</_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyFileVersion">
+        <_Parameter1>$(ComponentBaseVersion)</_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyInformationalVersion">
+        <_Parameter1>$(ComponentBaseVersion)+$(BuildNumber)</_Parameter1>
+      </AssemblyAttributes>
+    </ItemGroup>
+
+    <WriteCodeFragment
+      Language="C#"
+      OutputFile="_AssemblyInfo.cs"
+      AssemblyAttributes="@(AssemblyAttributes)"
+      />
+
+    <exec command ="copy /Y &quot;$(ProjectDir)_AssemblyInfo.cs&quot; &quot;$(ProjectDir)Properties\AssemblyInfo.cs&quot; "/>
+  </Target>
+
+</Project>

@@ -12,7 +12,7 @@ namespace Habitat.Server.AdminWebConsole
     public class ConfigConsoleApplication : HttpApplication
     {
         /// <summary>
-        /// URL to the config service.  It is assumed that the data service is available at "configserver" in any environment
+        /// URL to the Habitat Server.  It is assumed that the data service is available at "configserver" in any environment
         /// </summary>
         private const string ConfigServiceUrl = "http://configserver/Habitat.Server.Data/";
 

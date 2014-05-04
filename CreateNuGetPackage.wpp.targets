@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\ExtensionPack\4.0\MSBuild.ExtensionPack.tasks" />
+  <!--<PropertyGroup>
+    <Publish>false</Publish>
+    <NuGetUrl>http://appserver/Nuget/</NuGetUrl>
+  </PropertyGroup>-->
+
+  <Target Name="CreateNuGetPackage">
+    <PropertyGroup>
+      <ComponentBaseVersion>0.0.0</ComponentBaseVersion>
+      <SolutionDir Condition="'$(SolutionDir)' == '*Undefined*'">$(ProjectDir)..\</SolutionDir>
+      <SolutionDir Condition="'$(SolutionDir)' != '*Undefined*'">$(SolutionDir)</SolutionDir>
+      <BinFolder Condition="'$(OutDir)' != 'bin\$(Configuration)\'" >$(OutDir)</BinFolder>
+      <BinFolder Condition="'$(OutDir)' == 'bin\$(Configuration)\'" >$(MSBuildProjectDirectory)\$(OutDir)</BinFolder>
+    </PropertyGroup>
+    <Message Text="BinFolder:$(BinFolder)" />
+    <Message Text="SolutionDir:$(SolutionDir)" />
+    <Message Text="MSBuildProjectDirectory:$(MSBuildProjectDirectory)" />
+    <Message Text="Config:$(Configuration)" />
+    <MSBuild.ExtensionPack.Xml.XmlFile TaskAction="ReadAttribute" File="$(SolutionDir)\version.xml"
+                                           XPath="/Versions/Version[last()]/@number" Condition="Exists('$(SolutionDir)\version.xml')">
+      <Output PropertyName="ComponentBaseVersion" TaskParameter="Value" />
+    </MSBuild.ExtensionPack.Xml.XmlFile>
+    <CreateItem Include="$(MSBuildProjectDirectory)\*.nuspec">
+      <Output TaskParameter="Include" ItemName="NuspecFile" />
+    </CreateItem>
+    <Message Text="NuspecFile:@(NuspecFile)" />
+    <!--Delete existing .nupkg files-->
+    <CreateItem Include="$(MSBuildProjectDirectory)\*.nupkg">
+      <Output TaskParameter="Include" ItemName="OldPackageFiles" />
+    </CreateItem>
+    <Delete Files="@(OldPackageFiles)" />
+    <!--Create nupkg file-->
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="nuget.exe pack @(NuspecFile) -Properties version=$(ComponentBaseVersion);binfolder=$(BinFolder)" />
+    <CreateItem Include="$(MSBuildProjectDirectory)\*.nupkg">
+      <Output TaskParameter="Include" ItemName="PackageFile" />
+    </CreateItem>
+    <!--If Publish=true push package to server-->
+    <!--<Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="nuget.exe push @(PackageFile) -ApiKey 123 -s $(NuGetUrl)" Condition="$(Publish)==true" />-->
+  </Target>
+</Project>
+
