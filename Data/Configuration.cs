@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using Habitat.Core;
 using OpenRasta.Configuration;
 using OpenRasta.DI;
@@ -44,29 +46,46 @@ namespace Habitat.Server.Data
         /// </summary>
         public void Configure()
         {
-            using (OpenRastaConfiguration.Manual)
+            try
             {
-                ResourceSpace.Has.ResourcesOfType<ConfigRoot>()
-                    .AtUri("Config/{componentName}").And
-                    .AtUri("Config")
-                    .HandledBy<ConfigHandler>()
-                    .TranscodedBy<ConfigCodec>()
-                    .ForMediaType(MediaType.Json);
+                using (OpenRastaConfiguration.Manual)
+                {
+                    ResourceSpace.Has.ResourcesOfType<ConfigRoot>()
+                        .AtUri("Config/{componentName}").And
+                        .AtUri("Config")
+                        .HandledBy<ConfigHandler>()
+                        .TranscodedBy<ConfigCodec>()
+                        .ForMediaType(MediaType.Json);
 
-                ResourceSpace.Has.ResourcesOfType<List<string>>()
-                    .AtUri("Config")
-                    .HandledBy<ConfigHandler>()
-                    .TranscodedBy<ConfigListCodec>()
-                    .ForMediaType(MediaType.Json);
+                    ResourceSpace.Has.ResourcesOfType<List<string>>()
+                        .AtUri("Config")
+                        .HandledBy<ConfigHandler>()
+                        .TranscodedBy<ConfigListCodec>()
+                        .ForMediaType(MediaType.Json);
+                }
+
+
+                if (_container == null)
+                {
+                    ConfigSettings configSettings = new ConfigSettings();
+                    configSettings.DataDirectory = ConfigurationManager.AppSettings["DataDirectory"];
+                    configSettings.LogFileTemplate = ConfigurationManager.AppSettings["LogFileTemplate"];
+               
+                    int logLevel;
+                    if (int.TryParse(ConfigurationManager.AppSettings["LogLevel"], out logLevel))
+                    {
+                        configSettings.LogLevel = logLevel;
+                    }
+
+                    _container = new Container(new DependencyRegistry(configSettings));
+                }
+
+                ResourceSpace.Uses.Resolver.AddDependencyInstance(typeof(IContainer), _container, DependencyLifetime.Singleton);
             }
-
-
-            if (_container == null)
+            catch (Exception exception)
             {
-                _container = new Container(new DependencyRegistry());
+                
             }
-
-            ResourceSpace.Uses.Resolver.AddDependencyInstance(typeof(IContainer), _container, DependencyLifetime.Singleton);
         }
     }
 }

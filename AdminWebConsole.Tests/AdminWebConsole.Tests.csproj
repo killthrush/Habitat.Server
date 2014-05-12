@@ -44,8 +44,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Habitat.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Habitat.Core.1.0.0\lib\net40\Habitat.Core.dll</HintPath>
+    <Reference Include="Habitat.Core, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Habitat.Core.1.0.1\lib\net40\Habitat.Core.dll</HintPath>
     </Reference>
     <Reference Include="Habitat.Core.TestingLibrary">
       <HintPath>..\packages\Habitat.Core.TestingLibrary.1.0.0\lib\net40\Habitat.Core.TestingLibrary.dll</HintPath>
