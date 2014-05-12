@@ -178,3 +178,7 @@ FakesAssemblies/
 **/AssemblyInfo.cs
 */_AssemblyInfo.cs
 *.nupkg
+
+# Default log directories (if not using config files with the server)
+Data/logs
+Data/configdata
